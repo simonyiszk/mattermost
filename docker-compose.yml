@@ -1,0 +1,52 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:13.7
+    restart: always
+    tmpfs:
+      - /tmp
+      - /var/run/postgresql
+    volumes:
+      - database_folder:/var/lib/postgresql/data
+    env_file:
+      - .env
+  mattermost:
+    depends_on:
+      - postgres
+    image: mattermost/mattermost-enterprise-edition:6.3
+    restart: always
+    ports:
+      - "3666:8065"
+    tmpfs:
+      - /tmp
+    volumes:
+      - mm_config_volume:/mattermost/config:rw
+      - mm_data_volume:/mattermost/data:rw
+      - mm_logs_volume:/mattermost/logs:rw
+      - mm_plugins_volume:/mattermost/plugins:rw
+      - mm_client_plugins_volume:/mattermost/client/plugins:rw
+      - mm_bleve_indexes_volume:/mattermost/bleve-indexes:rw
+    env_file:
+      - .env
+volumes:
+  database_folder:
+    external:
+      name: simonyi-mm_db
+  mm_config_volume:
+    external:
+      name: simonyi-mm_config
+  mm_data_volume:
+    external:
+      name: simonyi-mm_data
+  mm_logs_volume:
+    external:
+      name: simonyi-mm_logs
+  mm_plugins_volume:
+    external:
+      name: simonyi-mm_plugins
+  mm_client_plugins_volume:
+    external:
+      name: simonyi-mm_client_plugins
+  mm_bleve_indexes_volume:
+    external:
+      name: simonyi-mm_indexes
